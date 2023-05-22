@@ -1,5 +1,9 @@
 /*
+// specifies the number of threads to be used by OpenMP parallel regions in the program.
+// OMP_NUM_THREADS : environment variable
+// OMP_NUM_THREADS=4 : 4 indicates that the program intends to utilize 4 threads for parallel execution.
 export OMP_NUM_THREADS=4
+
 g++ -fopenmp bubblesort.cpp
 ./a.out
 */
