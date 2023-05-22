@@ -1,0 +1,72 @@
+!pip install git+https://github.com/Supriya079/cuda.git
+%load_ext nvcc_plugin
+
+%%cu
+#include <iostream>
+#include <cstdlib>
+
+// CUDA kernel for vector addition
+__global__ void vectorAdd(int* a, int* b, int* c, int size) {
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index < size) {
+        c[index] = a[index] + b[index];
+    }
+}
+
+int main() {
+    int size = 10000;  // Size of the vectors
+
+    // Allocate memory for vectors on the host
+    int* hostA = new int[size];
+    int* hostB = new int[size];
+    int* hostC = new int[size];
+
+    // Initialize vectors with random values
+    for (int i = 0; i < size; i++) {
+        hostA[i] = rand() % 100;
+        hostB[i] = rand() % 100;
+    }
+
+    // Allocate memory for vectors on the device
+    int* deviceA;
+    int* deviceB;
+    int* deviceC;
+    cudaMalloc((void**)&deviceA, size * sizeof(int));
+    cudaMalloc((void**)&deviceB, size * sizeof(int));
+    cudaMalloc((void**)&deviceC, size * sizeof(int));
+
+    // Copy input vectors from host to device
+    cudaMemcpy(deviceA, hostA, size * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceB, hostB, size * sizeof(int), cudaMemcpyHostToDevice);
+
+    // Define the grid and block dimensions
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (size + threadsPerBlock - 1) / threadsPerBlock;
+
+    // Launch the vector addition kernel
+    vectorAdd<<<blocksPerGrid, threadsPerBlock>>>(deviceA, deviceB, deviceC, size);
+
+    // Copy result vector from device to host
+    cudaMemcpy(hostC, deviceC, size * sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Print the result in chunks of 100 elements
+    std::cout << "Result: ";
+    for (int i = 0; i < size; i += 100) {
+        for (int j = i; j < i + 100 && j < size; j++) {
+            std::cout << hostC[j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Free memory on the device
+    cudaFree(deviceA);
+    cudaFree(deviceB);
+    cudaFree(deviceC);
+
+    // Free memory on the host
+    delete[] hostA;
+    delete[] hostB;
+    delete[] hostC;
+
+    return 0;
+}
