@@ -1,4 +1,6 @@
 !pip install git+https://github.com/Supriya079/cuda.git
+
+// enables the integration of CUDA code into Jupyter notebooks to execute CUDA code using NVDIA Compiler.
 %load_ext nvcc_plugin
 
 %%cu
@@ -21,6 +23,10 @@ void printArray(int arr[], int size){
 
 int maxArray(int arr[], int size){
     int max_val = arr[0];
+    /*
+    - " #pragma omp parallel for " directive used to parallize loop dividing the iterations among multiple threads for concurrent execution.
+    - " reduction(min:min_val) " clause specifies that each thread should maintain a local copy of min_val
+    */    
     #pragma omp parallel for reduction(min:min_val)
     for(int i=0;i<size;i++){
         if(arr[i]>max_val){
