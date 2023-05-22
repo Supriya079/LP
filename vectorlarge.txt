@@ -1,4 +1,6 @@
 !pip install git+https://github.com/Supriya079/cuda.git
+
+// enables the integration of CUDA code into Jupyter notebooks to execute CUDA code using NVDIA Compiler.
 %load_ext nvcc_plugin
 
 %%cu
@@ -6,6 +8,7 @@
 #include <cstdlib>
 
 // CUDA kernel for vector addition
+// __global__ indicating that it will be called from the host and executed on the GPU.
 __global__ void vectorAdd(int* a, int* b, int* c, int size) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < size) {
