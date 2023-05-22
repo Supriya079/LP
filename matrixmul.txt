@@ -1,4 +1,6 @@
 !pip install git+https://github.com/Supriya079/cuda.git
+
+// enables the integration of CUDA code into Jupyter notebooks to execute CUDA code using NVDIA Compiler.
 %load_ext nvcc_plugin
 
 %%cu
@@ -8,6 +10,7 @@
 #define N 3
 
 // CUDA kernel for matrix multiplication
+// __global__ indicating that it will be called from the host and executed on the GPU.
 __global__ void matrixMul(int *a, int *b, int *c)
 {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -27,7 +30,7 @@ int main()
     int *h_a, *h_b, *h_c;
     int *d_a, *d_b, *d_c;
     int size = N * N * sizeof(int);
-
+    
     // Allocate host memory
     h_a = (int*)malloc(size);
     h_b = (int*)malloc(size);
