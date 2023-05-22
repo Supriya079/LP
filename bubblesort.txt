@@ -55,6 +55,9 @@ int main() {
     int arr[size];
 
     generateArray(arr, size);
+    
+    int arr1[] = {64, 34, 25, 12, 22, 11, 90};
+    int n = sizeof(arr1) / sizeof(arr1[0]);
 
     int parallelarr[size];
     std::copy(arr, arr + size, parallelarr);
