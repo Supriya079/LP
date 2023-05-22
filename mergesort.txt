@@ -1,0 +1,167 @@
+/*
+export OMP_NUM_THREADS=4
+g++ -fopenmp bubblesort.cpp
+./a.out
+*/
+
+#include <iostream>
+#include <algorithm>
+#include <omp.h>
+
+void printArray(int arr[], int size){
+    for(int i=0;i<size;i++){
+        std::cout<<arr[i]<<" ";
+    }
+}
+
+void generateArray(int arr[], int size){
+    for(int i=0;i<size;i++){
+        arr[i] = rand() % size;
+    }
+}
+
+//sequnetial merge
+void sequentialMergeSort(int arr[], int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        
+        sequentialMergeSort(arr, l, m);
+        sequentialMergeSort(arr, m + 1, r);
+        
+        // Merge the sorted halves
+        int i, j, k;
+        int n1 = m - l + 1;
+        int n2 = r - m;
+
+        int left[n1], right[n2];
+        
+        for (i = 0; i < n1; i++)
+            left[i] = arr[l + i];
+        for (j = 0; j < n2; j++)
+            right[j] = arr[m + 1 + j];
+
+        i = 0;
+        j = 0;
+        k = l;
+        
+        while (i < n1 && j < n2) {
+            if (left[i] <= right[j]) {
+                arr[k] = left[i];
+                i++;
+            }
+            else {
+                arr[k] = right[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1) {
+            arr[k] = left[i];
+            i++;
+            k++;
+        }
+
+        while (j < n2) {
+            arr[k] = right[j];
+            j++;
+            k++;
+        }
+    }
+}
+
+
+// Parallel Merge Sort (using recursion)
+void parallelMergeSort(int arr[], int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        
+        #pragma omp parallel sections
+        {
+            #pragma omp section
+            parallelMergeSort(arr, l, m);
+
+            #pragma omp section
+            parallelMergeSort(arr, m + 1, r);
+        }
+        
+        // Merge the sorted halves
+        int i, j, k;
+        int n1 = m - l + 1;
+        int n2 = r - m;
+
+        int left[n1], right[n2];
+        
+        for (i = 0; i < n1; i++)
+            left[i] = arr[l + i];
+        for (j = 0; j < n2; j++)
+            right[j] = arr[m + 1 + j];
+
+        i = 0;
+        j = 0;
+        k = l;
+        
+        while (i < n1 && j < n2) {
+            if (left[i] <= right[j]) {
+                arr[k] = left[i];
+                i++;
+            }
+            else {
+                arr[k] = right[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1) {
+            arr[k] = left[i];
+            i++;
+            k++;
+        }
+
+        while (j < n2) {
+            arr[k] = right[j];
+            j++;
+            k++;
+        }
+    }
+}
+
+int main() {
+    const int size = 10000;
+    int arr[size];
+
+    generateArray(arr,size);
+
+    //int arr1[] = {64, 34, 25, 12, 22, 11, 90};
+    //int size1 = sizeof(arr1) / sizeof(arr1[0]);
+
+    int parallelarr[size];
+    std::copy(arr,arr+size,parallelarr);    
+
+    // Sequential Merge Sort
+    //startTime = omp_get_wtime();
+    sequentialMergeSort(arr, 0, size - 1);
+    //endTime = omp_get_wtime();
+    //sequentialTime = endTime - startTime;
+    //std::cout << "Time for Sequential Merge Sort: " << sequentialTime << std::endl;
+
+    
+    // Parallel Merge Sort
+    //startTime = omp_get_wtime();
+    parallelMergeSort(parallelarr, 0, size - 1);
+    //endTime = omp_get_wtime();
+    //parallelTime = endTime - startTime;
+    //std::cout << "Time for Parallel Merge Sort: " << parallelTime << std::endl;
+
+    std::cout << "Sequential Sorted Array:" << std::endl;
+    printArray(arr, size);
+    //std::cout << "Time for Sequential Sort: " << sequentialTime << std::endl;
+
+    std::cout << "\n Parallel Sorted Array:" << std::endl;
+    printArray(parallelarr, size);
+    //std::cout << "Time for Parallel Sort: " << parallelTime << std::endl;
+
+
+    return 0;
+}
