@@ -20,6 +20,7 @@ void generateArray(int arr[], int size){
     }
 }
 
+// divides the array into two halves until each subarray contains only one element
 //sequnetial merge
 void sequentialMergeSort(int arr[], int l, int r) {
     if (l < r) {
@@ -76,6 +77,10 @@ void parallelMergeSort(int arr[], int l, int r) {
     if (l < r) {
         int m = l + (r - l) / 2;
         
+        /*
+        - pragma directive " #pragma omp parallel sections"  used to parallelize the recursive calls to merge sort
+        - The parallel sections pragma splits the work into two sections, and each section is executed by a different thread. 
+        */
         #pragma omp parallel sections
         {
             #pragma omp section
@@ -165,3 +170,11 @@ int main() {
 
     return 0;
 }
+
+
+/* Time Complexity : O(n log n)
+- Sequential:
+  : Each level of recursion takes O(n) time for merging the subarrays, and there are log n levels of recursion.
+- Parallel
+  : divides the work among multiple threads using OpenMP otherwise same code as sequential.
+*/
