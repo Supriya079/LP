@@ -1,4 +1,6 @@
 !pip install git+https://github.com/Supriya079/cuda.git
+
+// enables the integration of CUDA code into Jupyter notebooks to execute CUDA code using NVDIA Compiler.
 %load_ext nvcc_plugin
 
 %%cu
@@ -21,6 +23,10 @@ void printArray(int arr[], int size){
 
 int sumArray(int arr[], int size){
     int sum = 0;
+    /*
+    - " #pragma omp parallel for " directive used to parallize loop dividing the iterations among multiple threads for concurrent execution.
+    - " reduction(+:sum) " clause ensures that each thread has its own private copy of the sum variable
+    */
     #pragma omp parallel for reduction(+:sum)
     for(int i=0;i<size;i++){
         sum+=arr[i];
